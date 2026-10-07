@@ -60,6 +60,10 @@ load: # Run the load test (ramp to 10 VUs, ~2m)
 spike: # Run the spike test (peak of 100 VUs, ~2m)
 	$(K6_RUN) --tag testid=spike-$(STAMP) k6/03-spike.js
 
+.PHONY: fail
+fail: # Run the load test against a slowed-down QuickPizza (thresholds go red)
+	$(K6_RUN) -e DELAY=200ms --tag testid=fail-$(STAMP) k6/02-load.js
+
 ## ----- Application -----
 
 .PHONY: build

@@ -24,6 +24,7 @@ make down
 make smoke   # k6/01-smoke.js   1 VU, 30s
 make load    # k6/02-load.js    ramp to 10 VUs, ~2m
 make spike   # k6/03-spike.js   peak of 100 VUs, ~2m
+make fail    # k6/02-load.js with an injected delay, so thresholds go red (exit 99)
 make help    # every target
 ```
 
@@ -56,7 +57,10 @@ make format-check
   `pkg/web/build/` must exist for the Go build to succeed; `make build-go` creates it
   from `pkg/web/dev.html`.
 - `pkg/errorinjector/` — header-driven fault injection.
-- `k6/` — the three workshop scripts plus `lib/config.js` and `lib/stages.js`.
+- `k6/` — the three workshop scripts. Each is self-contained (plain `http.post` +
+  `check`, no shared modules) so it reads top to bottom on a projector.
+  `02-load.js` and `03-spike.js` are identical except for `stages` and `thresholds`;
+  keep it that way, a diff between them is part of the talk.
 
 The app can run as a modular monolith or as separate services via
 `QUICKPIZZA_ENABLE_*_SERVICE` env vars, but this fork only ever runs the monolith
@@ -74,9 +78,10 @@ works. The API accepts both silently.
 
 **The calorie cap is best-effort.** Recipe generation retries at most 10 times and then
 returns the over-budget pizza anyway, so `calories <= maxCaloriesPerSlice` holds about
-99.6% of the time on a healthy system. This is why `02-load.js` uses
-`checks: ["rate>0.99"]` and `01-smoke.js` omits that check entirely. Do not "fix" those
-thresholds to `rate==1` — the smoke test would then fail roughly one run in ten.
+99.6% of the time on a healthy system. That is why the scripts deliberately have **no
+calorie check** (it would make `checks: rate==1` in the smoke test fail about one run in
+ten), and why the `pizza_calories` threshold is `p(99)<=500`, not `max<=500`: the metric
+records every pizza returned, including the over-budget ones.
 
 **Database.** `compose.yaml` uses PostgreSQL deliberately. The default in-memory SQLite
 serialises writes, which produces lock errors at the spike test's 100 VUs that look like
@@ -84,8 +89,14 @@ application failures.
 
 ## Fault injection
 
-Used in the workshop finale to force a threshold breach. Set on the `quickpizza` service
-in `compose.yaml` (commented examples are already there):
+Used in the workshop finale to force a threshold breach. `make fail` does it per request,
+with no restart: it passes `-e DELAY=200ms`, which the load/spike scripts turn into an
+`x-delay-get-ingredients` header (~0.9-1.2s per request, because ingredients are fetched
+several times per pizza). `x-delay-record-recommendation` has no visible effect on
+`POST /api/pizza` with the published image — do not switch to it.
+
+Process-wide alternatives, set on the `quickpizza` service in `compose.yaml` (commented
+examples are already there):
 
 - `QUICKPIZZA_DELAY_RECOMMENDATIONS_API_PIZZA_POST` — delay `POST /api/pizza`
 - `QUICKPIZZA_FAIL_RATE_RECOMMENDATIONS_API_PIZZA_POST` — fail 0-100% with a 503
