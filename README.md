@@ -70,7 +70,7 @@ make down    # when you are finished
 If a port is taken: `GRAFANA_PORT=3001 PROMETHEUS_PORT=9091 QUICKPIZZA_PORT=8080 make up`,
 then `make smoke QUICKPIZZA_PORT=8080`.
 
-## Three things that make a script a test
+## Two things that make a script a test
 
 ### Checks — was the answer right?
 
@@ -101,17 +101,6 @@ errors, the spike test allows 5%.
 
 Always use percentiles (`p(95)`), never the average: the average hides the slow
 requests, and those are the ones users notice.
-
-### Custom metrics — measure your own domain
-
-```js
-const pizzaCalories = new Trend("pizza_calories");
-pizzaCalories.add(res.json().calories);
-```
-
-k6 measures time and errors for you. Anything about your business you measure yourself,
-and you can put a threshold on it like any other metric. The workshop only shows this
-one; writing your own is out of scope.
 
 ## Watching results in Grafana (optional)
 

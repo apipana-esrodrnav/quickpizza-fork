@@ -13,8 +13,9 @@ and WebSocket examples, Kubernetes manifests, Terraform, and the Alloy/Tempo/Lok
 Pyroscope/OBI telemetry pipeline have all been removed. Do not reintroduce them. If a
 task seems to need them, it probably belongs upstream.
 
-The workshop covers exactly three test types — smoke, load, spike — plus checks, custom
-metrics and thresholds. Keep additions in that scope.
+The workshop covers exactly three test types — smoke, load, spike — plus checks and
+thresholds. Custom metrics, Grafana and Prometheus are out of scope (Grafana is only a
+visual aid). Keep additions in that scope.
 
 ## Key commands
 
@@ -79,9 +80,8 @@ works. The API accepts both silently.
 **The calorie cap is best-effort.** Recipe generation retries at most 10 times and then
 returns the over-budget pizza anyway, so `calories <= maxCaloriesPerSlice` holds about
 99.6% of the time on a healthy system. That is why the scripts deliberately have **no
-calorie check** (it would make `checks: rate==1` in the smoke test fail about one run in
-ten), and why the `pizza_calories` threshold is `p(99)<=500`, not `max<=500`: the metric
-records every pizza returned, including the over-budget ones.
+calorie check**: it would make `checks: rate==1` in the smoke test fail about one run in
+ten.
 
 **Database.** `compose.yaml` uses PostgreSQL deliberately. The default in-memory SQLite
 serialises writes, which produces lock errors at the spike test's 100 VUs that look like

@@ -11,13 +11,8 @@
 
 import http from "k6/http";
 import { check, sleep } from "k6";
-import { Trend } from "k6/metrics";
 
 const BASE_URL = __ENV.BASE_URL || "http://localhost:3333";
-
-// A custom metric. k6 measures time and errors for free; anything about your
-// own domain you measure yourself. A Trend gives you percentiles.
-const pizzaCalories = new Trend("pizza_calories");
 
 export const options = {
   // The load profile: ramp up, hold steady, ramp down.
@@ -33,7 +28,6 @@ export const options = {
     // Percentiles, never the average: the average hides the slow requests.
     http_req_duration: ["p(95)<500", "p(99)<1000"],
     checks: ["rate>0.99"], // over 99% of checks pass
-    pizza_calories: ["p(99)<=500"], // a target on our own domain metric
   },
 };
 
@@ -47,10 +41,7 @@ export default function () {
 
   const res = http.post(
     `${BASE_URL}/api/pizza`,
-    JSON.stringify({
-      maxCaloriesPerSlice: 500,
-      excludedIngredients: ["Pepperoni"],
-    }),
+    JSON.stringify({ excludedIngredients: ["Pepperoni"] }),
     { headers },
   );
 
@@ -60,10 +51,6 @@ export default function () {
       r.status === 200 &&
       r.json().pizza.ingredients.every((i) => i.name !== "Pepperoni"),
   });
-
-  if (res.status === 200) {
-    pizzaCalories.add(res.json().calories);
-  }
 
   sleep(1);
 }
