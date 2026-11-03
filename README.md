@@ -4,6 +4,11 @@ A stripped-down fork of [grafana/quickpizza](https://github.com/grafana/quickpiz
 used as the system under test for a short, hands-on k6 workshop: **smoke vs load vs
 spike testing**, and how to write k6 tests that actually tell you something.
 
+> **Scope.** This is a k6 workshop. It does not teach Grafana, Prometheus or how to
+> build custom metrics. Grafana and Prometheus are only here to make the results easier
+> to see; everything they show is also in the summary k6 prints to the console. If you
+> only read the console, you miss nothing.
+
 ## Before the workshop (please!)
 
 The hands-on part is only 20 minutes, so do this at home — downloading images on the
@@ -105,9 +110,13 @@ pizzaCalories.add(res.json().calories);
 ```
 
 k6 measures time and errors for you. Anything about your business you measure yourself,
-and you can put a threshold on it like any other metric.
+and you can put a threshold on it like any other metric. The workshop only shows this
+one; writing your own is out of scope.
 
-## Watching results in Grafana
+## Watching results in Grafana (optional)
+
+The console summary is enough to follow the workshop. Grafana just draws the same
+numbers over time.
 
 ```bash
 make load K6_FLAGS="-o experimental-prometheus-rw"
