@@ -9,24 +9,19 @@ spike testing**, and how to write k6 tests that actually tell you something.
 > to see; everything they show is also in the summary k6 prints to the console. If you
 > only read the console, you miss nothing.
 
-## Before the workshop (please!)
+## Try it yourself
 
-The hands-on part is only 20 minutes, so do this at home — downloading images on the
-venue Wi-Fi will eat the whole session.
+You need [Docker](https://docs.docker.com/get-docker/) and
+[k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) (`brew install k6`). You do
+not need Go or Node.
 
-1. Install [Docker](https://docs.docker.com/get-docker/) and
-   [k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) (`brew install k6`).
-2. Clone and start everything once:
+```bash
+git clone https://github.com/apipana-esrodrnav/quickpizza-fork.git
+cd quickpizza-fork
+make up      # the first run downloads the images
+```
 
-   ```bash
-   git clone --depth 1 <this-repo>
-   cd quickpizza-fork
-   make up      # downloads the images the first time
-   make smoke   # 30 seconds; should end with green ticks
-   make down
-   ```
-
-If `make smoke` ends with three green ✓, you are ready. You do not need Go or Node.
+Then follow [Running the tests](#running-the-tests).
 
 ## Performance testing is a family, not a test
 
