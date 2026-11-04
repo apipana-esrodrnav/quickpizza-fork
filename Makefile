@@ -18,6 +18,12 @@ BASE_URL ?= http://localhost:$(QUICKPIZZA_PORT)
 # k6's hardcoded localhost:9090 default.
 K6_PROMETHEUS_RW_SERVER_URL ?= http://localhost:$(PROMETHEUS_PORT)/api/v1/write
 export K6_PROMETHEUS_RW_SERVER_URL
+# Without this, k6 only sends p99 and the dashboard's min/max/p95/avg columns are empty.
+K6_PROMETHEUS_RW_TREND_STATS ?= p(95),p(99),min,max,avg
+# Ends each run's series when the test finishes, so consecutive runs don't
+# get averaged together (e.g. VUs showing 5 instead of 10).
+K6_PROMETHEUS_RW_STALE_MARKERS ?= true
+export K6_PROMETHEUS_RW_TREND_STATS K6_PROMETHEUS_RW_STALE_MARKERS
 # Extra flags passed straight to `k6 run`, e.g.
 #   make load K6_FLAGS="-o experimental-prometheus-rw"
 #   make load K6_FLAGS="--out web-dashboard"
